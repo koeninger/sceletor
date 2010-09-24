@@ -23,22 +23,22 @@ object XmlHelpers {
     def \\@(selector: String): NodeSeq =
       finder(buildPredicate(selector))
 
-    def rewrite(p: Node => Boolean, f: Node => Seq[Node]): NodeSeq = {
+    def rewrite(p: Node => Boolean)(f: Node => Seq[Node]): NodeSeq = {
       object rr extends RewriteRule {
         override def transform(n: Node): Seq[Node] = if (p(n)) f(n) else n
       }
       object rt extends RuleTransformer(rr)
-      this.xs.map(rt(_))
+      rt.transform(this.xs)
     }
     
-    def rewrite(selector: String, f: Node => Seq[Node]): NodeSeq =
-      rewrite(buildPredicate(selector), f)
+    def rewrite(selector: String)(f: Node => Seq[Node]): NodeSeq =
+      rewrite(buildPredicate(selector))(f)
 
-    def rewrite(attr: String, value: String, f: Node => Seq[Node]): NodeSeq =
-      rewrite(buildPredicate(attr, value), f)
+    def rewrite(attr: String, value: String)(f: Node => Seq[Node]): NodeSeq =
+      rewrite(buildPredicate(attr, value))(f)
 
     def rewrite(selector: String, x: NodeSeq): NodeSeq =
-      rewrite(buildPredicate(selector), { ignore: Node => x })
+      rewrite(buildPredicate(selector))({ ignore: Node => x })
 
 
   }

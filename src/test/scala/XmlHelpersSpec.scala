@@ -16,9 +16,12 @@ object XmlHelpersSpec {
         </div>
       </body>
     </html>
+
+  val spans = List("mopey", "dopey", "gropey")
+
   def apply() = {
-    x rewrite(".doo", { y: Node =>
-      y rewrite(".too", { z: Node =>
-        <span class="replaced">{ z.child }</span> })})
+    x.rewrite(".doo"){ y =>
+      y.rewrite(".too"){ z =>
+        spans.map{ s => <span class={ s }>{ z.child }</span> }}}
   }
 }
