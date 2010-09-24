@@ -30,9 +30,18 @@ object XmlHelpers {
       object rt extends RuleTransformer(rr)
       rt.transform(this.xs)
     }
+
+    def rewrite(predicates: List[Node => Boolean])(f: Node => Seq[Node]): NodeSeq = predicates match {
+      case Nil => NodeSeq.Empty
+      case p::Nil => rewrite(p)(f)
+      case p::ps => rewrite(p)(y => y.rewrite(ps)(f))
+    }
     
     def rewrite(selector: String)(f: Node => Seq[Node]): NodeSeq =
-      rewrite(buildPredicate(selector))(f)
+      rewrite(selector.split("""\s"""))(f)
+
+    def rewrite(selectors: Array[String])(f: Node => Seq[Node]): NodeSeq =
+      rewrite(selectors.map(s => buildPredicate(s)).toList)(f)
 
     def rewrite(attr: String, value: String)(f: Node => Seq[Node]): NodeSeq =
       rewrite(buildPredicate(attr, value))(f)
@@ -42,5 +51,5 @@ object XmlHelpers {
 
 
   }
-  implicit def richNodeSeq(xs: NodeSeq) = new RichNodeSeq(xs)
+  implicit def richNodeSeq(xs: NodeSeq): RichNodeSeq = new RichNodeSeq(xs)
 }

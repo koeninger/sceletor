@@ -20,8 +20,14 @@ object XmlHelpersSpec {
   val spans = List("mopey", "dopey", "gropey")
 
   def apply() = {
-    x.rewrite(".doo"){ y =>
+    val one = x.rewrite(".doo"){ y =>
       y.rewrite(".too"){ z =>
-        spans.map{ s => <span class={ s }>{ z.child }</span> }}}
+        spans.map{ s => <span>{ Text(s) }</span> }}}
+
+    val two = x.rewrite(".doo .too"){ y =>
+        spans.map{ s => <span>{ Text(s) }</span> }}
+
+    assert(one == two)
+    println(two)
   }
 }
