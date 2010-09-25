@@ -4,15 +4,16 @@ import scala.xml._
 import scala.xml.transform._
 
 object XmlHelpers {
-  class RichNodeSeq(xs: NodeSeq) {
-    private def buildPredicate(attr: String, value: String): Node => Boolean = n =>
-      n.attribute(attr).map(_.text.split("""\s""").contains(value)).getOrElse(false)
+  def buildPredicate(attr: String, value: String): Node => Boolean = n =>
+    n.attribute(attr).map(_.text.split("""\s""").contains(value)).getOrElse(false)
 
-    private def buildPredicate(selector: String): Node => Boolean = selector.headOption match {
-      case Some('.') => buildPredicate("class", selector.tail)
-      case Some('#') => buildPredicate("id", selector.tail)
-      case _ => throw new Exception("""invalid selector "%s", must start wih '.' or '#'""".format(selector))
-    }
+  def buildPredicate(selector: String): Node => Boolean = selector.headOption match {
+    case Some('.') => buildPredicate("class", selector.tail)
+    case Some('#') => buildPredicate("id", selector.tail)
+    case _ => throw new Exception("""invalid selector "%s", must start wih '.' or '#'""".format(selector))
+  }
+
+  class RichNodeSeq(xs: NodeSeq) {
 
     private def finder(predicate: Node => Boolean) = 
       xs flatMap (_.descendant_or_self) filter predicate
