@@ -7,12 +7,6 @@ object XmlHelpers {
   def buildPredicate(attr: String, value: String): Node => Boolean = n =>
     n.attribute(attr).map(_.text.split("""\s""").contains(value)).getOrElse(false)
 
-  def buildPredicate(selector: String): Node => Boolean = selector.headOption match {
-    case Some('.') => buildPredicate("class", selector.tail)
-    case Some('#') => buildPredicate("id", selector.tail)
-    case _ => throw new Exception("""invalid selector "%s", must start wih '.' or '#'""".format(selector))
-  }
-
   class RichNodeSeq(xs: NodeSeq) {
 
     private def finder(predicate: Node => Boolean) = 
@@ -22,7 +16,7 @@ object XmlHelpers {
       finder(buildPredicate(attr, value))
 
     def \\@(selector: String): NodeSeq =
-      finder(buildPredicate(selector))
+      finder(SelectorParser(selector))
 
     def rewrite(p: Node => Boolean)(f: Node => Seq[Node]): NodeSeq = {
       object rr extends RewriteRule {
@@ -42,13 +36,13 @@ object XmlHelpers {
       rewrite(selector.split("""\s"""))(f)
 
     def rewrite(selectors: Array[String])(f: Node => Seq[Node]): NodeSeq =
-      rewrite(selectors.map(s => buildPredicate(s)).toList)(f)
+      rewrite(selectors.map(s => SelectorParser(s)).toList)(f)
 
     def rewrite(attr: String, value: String)(f: Node => Seq[Node]): NodeSeq =
       rewrite(buildPredicate(attr, value))(f)
 
     def rewrite(selector: String, x: NodeSeq): NodeSeq =
-      rewrite(buildPredicate(selector))({ ignore: Node => x })
+      rewrite(SelectorParser(selector))({ ignore: Node => x })
 
 
   }

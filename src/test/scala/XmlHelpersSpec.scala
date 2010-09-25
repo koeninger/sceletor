@@ -12,7 +12,7 @@ object XmlHelpersSpec {
           a div <div class="doo noo">with a nested div</div> in it
         </div>
         <div class="doo">
-          different div <div class="doo too">different nested div</div> in it
+          different div <weird:div id="zoo" class="doo too">different nested div</weird:div> in it
         </div>
       </body>
     </html>
@@ -21,13 +21,14 @@ object XmlHelpersSpec {
 
   def apply() = {
     val one = x.rewrite(".doo"){ y =>
-      y.rewrite(".too"){ z =>
+      y.rewrite("weird|div#zoo.too"){ z =>
         spans.map{ s => <span>{ Text(s) }</span> }}}
 
-    val two = x.rewrite(".doo .too"){ y =>
+    val two = x.rewrite(".doo weird|div#zoo.too"){ y =>
         spans.map{ s => <span>{ Text(s) }</span> }}
 
     assert(one == two)
     println(two)
+    true
   }
 }
