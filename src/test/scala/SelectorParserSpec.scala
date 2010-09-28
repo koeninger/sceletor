@@ -1,26 +1,28 @@
 package org.koeninger
 
 import org.koeninger.SelectorParser._
-
 import scala.xml._
+import org.specs._
 
-object SelectorParserSpec {
-  def apply() = {
+class SelectorParserSpec extends Specification {
+  "parse id" in { 
     val f: Node => Boolean = SelectorParser("#foo")
 
-    assert(f(<div>text</div>) == false)
-    assert(f(<div id="foo">text</div>) == true)
+    f(<div>text</div>) must beFalse
+    f(<div id="foo">text</div>) must beTrue
+  }
 
+  "parse class" in {
     val g: Node => Boolean = SelectorParser(".bar")
 
-    assert(g(<div class="baz" >text</div>) == false)
-    assert(g(<div id="foo" class="baz bar">text</div>) == true)
+    g(<div class="baz" >text</div>) must beFalse
+    g(<div id="foo" class="baz bar">text</div>) must beTrue
+  }
 
+  "parse namespace prefix" in {
     val h: Node => Boolean = SelectorParser("fork|div#foo.bar")
 
-    assert(h(<div id="foo" class="baz bar">text</div>) == false)
-    assert(h(<fork:div id="foo" class="baz bar">text</fork:div>) == true)
-
-    true
+    h(<div id="foo" class="baz bar">text</div>) must beFalse
+    h(<fork:div id="foo" class="baz bar">text</fork:div>) must beTrue
   }
 }
