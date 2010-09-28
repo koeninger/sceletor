@@ -21,8 +21,8 @@ class XmlHelpersSpec extends Specification {
   "find stuff" in {
     val target = <weird:div id="zoo" class="doo too">different nested div</weird:div>
     x.find("#zoo").head must_== target
-//    x.find(".doo weird|div#zoo.too").head must_== target
-//    x.find("div.doo.too").head must_== target
+    x.find(".doo weird|div#zoo.too").head must_== target
+    x.find("div.doo.too").head must_== target
   }
 
   "edit stuff" in { 

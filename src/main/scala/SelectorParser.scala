@@ -23,7 +23,10 @@ object SelectorParser extends RegexParsers {
     | "|" ^^ { case _ => alwaysTrue }
   )
   val elementName: Parser[Node => Boolean] = ident ^^ { s => (n: Node) => n.label == s }
-  val typeSelector: Parser[Node => Boolean] = namespacePrefix ~ elementName ^^ { case x~y => (n: Node) => x(n) && y(n) }
+  val typeSelector: Parser[Node => Boolean] = (
+    namespacePrefix ~ elementName ^^ { case x~y => (n: Node) => x(n) && y(n) }
+    | elementName
+  )
   val universal: Parser[Node => Boolean] = (
     namespacePrefix ~ "*" ^^ { case _ => alwaysTrue }
     | "*" ^^ { case _ => alwaysTrue }

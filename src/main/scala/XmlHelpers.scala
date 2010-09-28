@@ -15,8 +15,14 @@ object XmlHelpers {
     def find(attr: String, value: String): NodeSeq =
       finder(buildPredicate(attr, value))
 
+    def find(predicates: List[Node => Boolean]): NodeSeq = predicates match {
+      case Nil => NodeSeq.Empty
+      case p::Nil => finder(p)
+      case p::ps => finder(p).find(ps)
+    }
+
     def find(selector: String): NodeSeq =
-      finder(SelectorParser(selector))
+      find(selector.split("""\s""").toList.map{ s => SelectorParser(s) })
 
     def edit(p: Node => Boolean)(f: Node => Seq[Node]): NodeSeq = {
       object rr extends RewriteRule {

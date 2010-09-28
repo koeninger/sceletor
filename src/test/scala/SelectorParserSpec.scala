@@ -12,17 +12,31 @@ class SelectorParserSpec extends Specification {
     f(<div id="foo">text</div>) must beTrue
   }
 
-  "parse class" in {
-    val g: Node => Boolean = SelectorParser(".bar")
+  "parse element name" in {
+    val p = SelectorParser("div#bar")
 
-    g(<div class="baz" >text</div>) must beFalse
-    g(<div id="foo" class="baz bar">text</div>) must beTrue
+    p(<div>text</div>) must beFalse
+    p(<div id="bar">text</div>) must beTrue
+  }
+
+  "parse class" in {
+    val p = SelectorParser(".bar")
+
+    p(<div class="baz" >text</div>) must beFalse
+    p(<div id="foo" class="baz bar">text</div>) must beTrue
+  }
+
+  "parse multiple classes" in {
+    val p = SelectorParser("div.foo.fraw")
+
+    p(<div class="foo"></div>) must beFalse
+    p(<div class="fraw foo"></div>) must beTrue
   }
 
   "parse namespace prefix" in {
-    val h: Node => Boolean = SelectorParser("fork|div#foo.bar")
+    val p = SelectorParser("fork|div#foo.bar")
 
-    h(<div id="foo" class="baz bar">text</div>) must beFalse
-    h(<fork:div id="foo" class="baz bar">text</fork:div>) must beTrue
+    p(<div id="foo" class="baz bar">text</div>) must beFalse
+    p(<fork:div id="foo" class="baz bar">text</fork:div>) must beTrue
   }
 }
