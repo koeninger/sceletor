@@ -18,16 +18,24 @@ class XmlHelpersSpec extends Specification {
       </body>
     </html>
 
-  "rewrite stuff" in { 
+  "find stuff" in {
+    val target = <weird:div id="zoo" class="doo too">different nested div</weird:div>
+    x.find("#zoo").head must_== target
+//    x.find(".doo weird|div#zoo.too").head must_== target
+//    x.find("div.doo.too").head must_== target
+  }
+
+  "edit stuff" in { 
     val spans = List("mopey", "dopey", "gropey")
 
-    val one = x.rewrite(".doo"){ y =>
-      y.rewrite("weird|div#zoo.too"){ z =>
+    val one = x.edit(".doo"){ y =>
+      y.edit("weird|div#zoo.too"){ z =>
         spans.map{ s => <span>{ Text(s) }</span> }}}
 
-    val two = x.rewrite(".doo weird|div#zoo.too"){ y =>
+    val two = x.edit(".doo weird|div#zoo.too"){ y =>
         spans.map{ s => <span>{ Text(s) }</span> }}
 
-    one mustEqual two
+    one must_== two
+    one must_!= x
   }
 }
