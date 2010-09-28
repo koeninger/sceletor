@@ -44,12 +44,11 @@ object XmlHelpers {
     def edit(selectors: Array[String])(f: Node => Seq[Node]): NodeSeq =
       edit(selectors.map(s => SelectorParser(s)).toList)(f)
 
+    def edit(selector: String, x: NodeSeq): NodeSeq =
+      edit(selector)({ ignore: Node => x })
+
     def edit(attr: String, value: String)(f: Node => Seq[Node]): NodeSeq =
       edit(buildPredicate(attr, value))(f)
-
-    def edit(selector: String, x: NodeSeq): NodeSeq =
-      edit(SelectorParser(selector))({ ignore: Node => x })
-
 
   }
   implicit def richNodeSeq(xs: NodeSeq): RichNodeSeq = new RichNodeSeq(xs)

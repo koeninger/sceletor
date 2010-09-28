@@ -25,7 +25,11 @@ class XmlHelpersSpec extends Specification {
     x.find("div.doo.too").head must_== target
   }
 
-  "edit stuff" in { 
+  "edit stuff with literals" in {
+    x.edit("title.too", <title>A new title</title>).toString mustMatch "<title>A new title</title>"
+  }
+
+  "edit stuff with functions" in { 
     val spans = List("mopey", "dopey", "gropey")
 
     val one = x.edit(".doo"){ y =>
