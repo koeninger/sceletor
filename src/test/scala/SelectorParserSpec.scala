@@ -6,10 +6,10 @@ import org.specs._
 
 class SelectorParserSpec extends Specification {
   "parse id" in { 
-    val f: Node => Boolean = SelectorParser("#foo")
+    val p: Node => Boolean = SelectorParser("#foo")
 
-    f(<div>text</div>) must beFalse
-    f(<div id="foo">text</div>) must beTrue
+    p(<div>text</div>) must beFalse
+    p(<div id="foo">text</div>) must beTrue
   }
 
   "parse element name" in {
@@ -34,9 +34,27 @@ class SelectorParserSpec extends Specification {
   }
 
   "parse namespace prefix" in {
-    val p = SelectorParser("fork|div#foo.bar")
+    var p = SelectorParser("ns|e")
 
-    p(<div id="foo" class="baz bar">text</div>) must beFalse
-    p(<fork:div id="foo" class="baz bar">text</fork:div>) must beTrue
+    p(<e />) must beFalse
+    p(<ns:e />) must beTrue
+    p(<any:e />) must beFalse
+    p(<f />) must beFalse
+
+    p = SelectorParser("*|e")
+    p(<e />) must beTrue
+    p(<any:e />) must beTrue
+    p(<f />) must beFalse
+
+    p = SelectorParser("|e")
+    p(<e />) must beTrue
+    p(<any:e />) must beFalse
+    p(<f />) must beFalse
+  }
+
+  "parse attributes" in {
+    val p = SelectorParser("[ attr ]")
+    p(<div notattr="">text</div>) must beFalse
+    p(<div attr="">text</div>) must beTrue
   }
 }
