@@ -69,5 +69,28 @@ class SelectorParserSpec extends Specification {
     p(<e attr="" />) must beTrue
     p(<e ns:attr="" />) must beFalse
 
+    p = SelectorParser("[attr=value]")
+    p(<e attr="notvalue" />) must beFalse
+    p(<e attr="value" />) must beTrue
+
+    p = SelectorParser("[attr~=value]")
+    p(<e attr="onevaluetwo" />) must beFalse
+    p(<e attr="one value two" />) must beTrue
+/*
+    p = SelectorParser("[attr|=value]")
+    p(<e attr="one-value-two" />) must beFalse
+    p(<e attr="value-two" />) must beTrue
+*/
+    p = SelectorParser("[attr^=value]")
+    p(<e attr=" value" />) must beFalse
+    p(<e attr="value" />) must beTrue
+
+    p = SelectorParser("[attr$=value]")
+    p(<e attr="value " />) must beFalse
+    p(<e attr=" value" />) must beTrue
+
+    p = SelectorParser("[attr*=value]")
+    p(<e attr="val ue" />) must beFalse
+    p(<e attr="valvalueue" />) must beTrue
   }
 }

@@ -13,11 +13,6 @@ object SelectorParser extends RegexParsers {
   val nmchar: Parser[String] = """[_a-zA-Z0-9-]""".r
   val name: Parser[String] = rep1(nmchar) ^^ { _.mkString }
   val hash: Parser[Node => Boolean] = "#" ~> name ^^ { s => buildPredicate("id", s) }
-  val includes: Parser[String] = "~="
-  val dashmatch: Parser[String] = "|="
-  val prefixmatch: Parser[String] = "^="
-  val suffixmatch: Parser[String] = "$="
-  val substringmatch: Parser[String] = "*="
 
   val alwaysTrue = (n: Node) => true
 
@@ -60,8 +55,21 @@ object SelectorParser extends RegexParsers {
       case None~s => (n: Node) => n.attributes.filter(_.key == s)
     }
   val attrib: Parser[Node => Boolean] =
-    "[" ~> qualifiedAttrib <~ "]" ^^ {
-      case p => (n: Node) => p(n) != Null
+    "[" ~> qualifiedAttrib ~ opt(("=" | "~=" | "|=" | "^=" | "$=" | "*=") ~ ident) <~ "]" ^^ {
+      case p~None => (n: Node) =>
+        p(n) != Null
+      case p~Some("="~s) => (n: Node) =>
+        p(n).filter(_.value.toString == s) != Null
+      case p~Some("~="~s) => (n: Node) =>
+        p(n).filter(_.value.toString.split("\\s").contains(s)) != Null
+      case p~Some("|="~s) => (n: Node) =>
+        p(n).filter(_.value.toString.startsWith(s + "-")) != Null
+      case p~Some("^="~s) => (n: Node) =>
+        p(n).filter(_.value.toString.startsWith(s)) != Null
+      case p~Some("$="~s) => (n: Node) =>
+        p(n).filter(_.value.toString.endsWith(s)) != Null
+      case p~Some("*="~s) => (n: Node) =>
+        p(n).filter(_.value.toString.containsSlice(s)) != Null
     }
   val pseudo: Parser[Any] = failure("pseudo isnt implemented")
   val negation: Parser[Any] = failure("negation isnt implemented")
