@@ -31,6 +31,19 @@ object SelectorParser extends RegexParsers {
       case None => (n: Node) => n.prefix == null
     }
 
+  val namespacePrefixAttrib: Parser[Node => MetaData] =
+    opt(ident | "*") <~ "|" ^^ {
+      case Some("*") => _.attributes
+      case Some(s) => _.attributes filter {
+        case PrefixedAttribute(p, _, _, _) if p == s => true
+        case _ => false
+      }
+      case None => _.attributes filter {
+        case UnprefixedAttribute(_, _, _) => true
+        case _ => false
+      }
+    }
+
   val elementName: Parser[Node => Boolean] = ident ^^ { s => (n: Node) => n.label == s }
   val typeSelector: Parser[Node => Boolean] = (
     namespacePrefixNode ~ elementName ^^ { case x~y => (n: Node) => x(n) && y(n) }
@@ -42,7 +55,10 @@ object SelectorParser extends RegexParsers {
   )
   val klass: Parser[Node => Boolean] = "." ~> ident ^^ { s => buildPredicate("class", s) }
   val attrib: Parser[Node => Boolean] =
-    "[" ~> ident <~ "]" ^^ { s => (n: Node) => n.attribute(s).isDefined }
+    "[" ~> opt(namespacePrefixAttrib) ~ ident <~ "]" ^^ {
+      case Some(p)~s => (n: Node) => p(n).filter(_.key == s) != Null
+      case None~s => (n: Node) => n.attribute(s).isDefined 
+    }
   val pseudo: Parser[Any] = failure("pseudo isnt implemented")
   val negation: Parser[Any] = failure("negation isnt implemented")
 

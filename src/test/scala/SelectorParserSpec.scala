@@ -53,8 +53,12 @@ class SelectorParserSpec extends Specification {
   }
 
   "parse attributes" in {
-    val p = SelectorParser("[ attr ]")
-    p(<div notattr="">text</div>) must beFalse
-    p(<div attr="">text</div>) must beTrue
+    var p = SelectorParser("[ attr ]")
+    p(<div notattr="" />) must beFalse
+    p(<div attr="" />) must beTrue
+
+    p = SelectorParser("[ns|attr]")
+    p(<e attr="" />) must beFalse
+    p(<e ns:attr="" />) must beTrue
   }
 }
