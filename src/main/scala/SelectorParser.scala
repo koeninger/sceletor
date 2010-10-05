@@ -54,10 +54,14 @@ object SelectorParser extends RegexParsers {
     | "*" ^^ { case _ => alwaysTrue }
   )
   val klass: Parser[Node => Boolean] = "." ~> ident ^^ { s => buildPredicate("class", s) }
+  val qualifiedAttrib: Parser[Node => MetaData] =
+    opt(namespacePrefixAttrib) ~ ident ^^ {
+      case Some(p)~s => (n: Node) => p(n).filter(_.key == s)
+      case None~s => (n: Node) => n.attributes.filter(_.key == s)
+    }
   val attrib: Parser[Node => Boolean] =
-    "[" ~> opt(namespacePrefixAttrib) ~ ident <~ "]" ^^ {
-      case Some(p)~s => (n: Node) => p(n).filter(_.key == s) != Null
-      case None~s => (n: Node) => n.attribute(s).isDefined 
+    "[" ~> qualifiedAttrib <~ "]" ^^ {
+      case p => (n: Node) => p(n) != Null
     }
   val pseudo: Parser[Any] = failure("pseudo isnt implemented")
   val negation: Parser[Any] = failure("negation isnt implemented")

@@ -60,5 +60,14 @@ class SelectorParserSpec extends Specification {
     p = SelectorParser("[ns|attr]")
     p(<e attr="" />) must beFalse
     p(<e ns:attr="" />) must beTrue
+
+    p = SelectorParser("[*|attr]")
+    p(<e attr="" />) must beTrue
+    p(<e ns:attr="" />) must beTrue
+
+    p = SelectorParser("[|attr]")
+    p(<e attr="" />) must beTrue
+    p(<e ns:attr="" />) must beFalse
+
   }
 }
