@@ -1,18 +1,19 @@
 package org.koeninger
 
-import XmlHelpers.buildPredicate
 import scala.util.parsing.combinator._
 import scala.xml._
 
 /** http://www.w3.org/TR/css3-selectors/#w3cselgrammar */
 object SelectorParser extends RegexParsers {
+  def attribPredicate(attr: String, value: String): Node => Boolean = n =>
+    n.attribute(attr).map(_.text.split("\\s").contains(value)).getOrElse(false)
 
   // tokenizer, ignoring nonascii and escape for now
   val ident: Parser[String] = """-?""".r ~ nmstart ~ rep(nmchar) ^^ { case x~y~z => x + y + z.mkString }
   val nmstart: Parser[String] = """[_a-zA-Z]""".r
   val nmchar: Parser[String] = """[_a-zA-Z0-9-]""".r
   val name: Parser[String] = rep1(nmchar) ^^ { _.mkString }
-  val hash: Parser[Node => Boolean] = "#" ~> name ^^ { s => buildPredicate("id", s) }
+  val hash: Parser[Node => Boolean] = "#" ~> name ^^ { s => attribPredicate("id", s) }
 
   val alwaysTrue = (n: Node) => true
 
@@ -48,7 +49,7 @@ object SelectorParser extends RegexParsers {
     namespacePrefixNode <~ "*"
     | "*" ^^ { case _ => alwaysTrue }
   )
-  val klass: Parser[Node => Boolean] = "." ~> ident ^^ { s => buildPredicate("class", s) }
+  val klass: Parser[Node => Boolean] = "." ~> ident ^^ { s => attribPredicate("class", s) }
   val qualifiedAttrib: Parser[Node => MetaData] =
     opt(namespacePrefixAttrib) ~ ident ^^ {
       case Some(p)~s => (n: Node) => p(n).filter(_.key == s)
@@ -56,20 +57,17 @@ object SelectorParser extends RegexParsers {
     }
   val attrib: Parser[Node => Boolean] =
     "[" ~> qualifiedAttrib ~ opt(("=" | "~=" | "|=" | "^=" | "$=" | "*=") ~ ident) <~ "]" ^^ {
-      case p~None => (n: Node) =>
-        p(n) != Null
-      case p~Some("="~s) => (n: Node) =>
-        p(n).filter(_.value.toString == s) != Null
-      case p~Some("~="~s) => (n: Node) =>
-        p(n).filter(_.value.toString.split("\\s").contains(s)) != Null
-      case p~Some("|="~s) => (n: Node) =>
-        p(n).filter(_.value.toString.startsWith(s + "-")) != Null
-      case p~Some("^="~s) => (n: Node) =>
-        p(n).filter(_.value.toString.startsWith(s)) != Null
-      case p~Some("$="~s) => (n: Node) =>
-        p(n).filter(_.value.toString.endsWith(s)) != Null
-      case p~Some("*="~s) => (n: Node) =>
-        p(n).filter(_.value.toString.containsSlice(s)) != Null
+      case p~None => (n: Node) => p(n) != Null
+      case p~Some(x~s) => (n: Node) =>
+        val matcher: String => Boolean = x match {
+          case "=" => _ == s
+          case "~=" => _.split("\\s").contains(s)
+          case "|=" => _.startsWith(s + "-")
+          case "^=" => _.startsWith(s)
+          case "$=" => _.endsWith(s)
+          case "*=" => _.containsSlice(s)
+        }
+        p(n).filter(a => matcher(a.value.toString)) != Null
     }
   val pseudo: Parser[Any] = failure("pseudo isnt implemented")
   val negation: Parser[Any] = failure("negation isnt implemented")

@@ -4,16 +4,10 @@ import scala.xml._
 import scala.xml.transform._
 
 object XmlHelpers {
-  def buildPredicate(attr: String, value: String): Node => Boolean = n =>
-    n.attribute(attr).map(_.text.split("""\s""").contains(value)).getOrElse(false)
-
   class RichNodeSeq(xs: NodeSeq) {
 
     private def finder(predicate: Node => Boolean) = 
       xs flatMap (_.descendant_or_self) filter predicate
-
-    def find(attr: String, value: String): NodeSeq =
-      finder(buildPredicate(attr, value))
 
     def find(predicates: List[Node => Boolean]): NodeSeq = predicates match {
       case Nil => NodeSeq.Empty
@@ -46,9 +40,6 @@ object XmlHelpers {
 
     def edit(selector: String, x: NodeSeq): NodeSeq =
       edit(selector)({ ignore: Node => x })
-
-    def edit(attr: String, value: String)(f: Node => Seq[Node]): NodeSeq =
-      edit(buildPredicate(attr, value))(f)
 
   }
   implicit def richNodeSeq(xs: NodeSeq): RichNodeSeq = new RichNodeSeq(xs)
