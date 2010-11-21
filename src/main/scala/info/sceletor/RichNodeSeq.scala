@@ -40,11 +40,11 @@ class RichNodeSeq(xs: NodeSeq) {
   def edit(selector: String, x: NodeSeq): NodeSeq =
     edit(selector)({ ignore: Node => x })
 
-  // wont work unless e.g. richNodeSeq(page).child(".hello", "world")
-  def child(selector: String, content: NodeSeq): NodeSeq =
-    edit(selector)(info.sceletor.child(content))
+  // using the method name "child" wont work unless e.g. richNodeSeq(page).child(".hello", "world")
+  def kid(selector: String, content: NodeSeq): NodeSeq =
+    edit(selector)(info.sceletor.kid(content))
 
-  def child(selector: String, content: String): NodeSeq =
-    edit(selector)(info.sceletor.child(content))
+  def kid(selector: String, content: String): NodeSeq =
+    edit(selector)(info.sceletor.kid(content))
 
 }
