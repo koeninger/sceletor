@@ -1,10 +1,11 @@
 package info.sceletor
 
+// find is defined by specs...
+import info.sceletor.{ find => fine }
+import org.specs._
 import scala.xml._
 
-import org.specs._
-
-class XmlHelpersSpec extends Specification {
+class RichNodeSeqSpec extends Specification {
   val x = 
     <html>
       <head><title class="too">a title</title></head>
@@ -20,7 +21,7 @@ class XmlHelpersSpec extends Specification {
 
   
   "implicitly added nodeseq methods" should {
-    import XmlHelpers._
+
     "find stuff" in {
       val target = <weird:div id="zoo" class="doo too">different nested div</weird:div>
       x.find("#zoo").head must_== target
@@ -48,15 +49,13 @@ class XmlHelpersSpec extends Specification {
   }
 
   "combinators" should {
-    // find is defined by specs...
-    import XmlHelpers.{ find => fin, _ }
 
     "find stuff" in {
       val target = <weird:div id="zoo" class="doo too">different nested div</weird:div>
 
-      fin("#zoo")(x).head must_== target
-      fin(".doo weird|div#zoo.too")(x).head must_== target
-      fin("div.doo.too")(x).head must_== target
+      fine("#zoo")(x).head must_== target
+      fine(".doo weird|div#zoo.too")(x).head must_== target
+      fine("div.doo.too")(x).head must_== target
     }
 
     "edit stuff with literals" in {
@@ -73,13 +72,13 @@ class XmlHelpersSpec extends Specification {
         </div>;
 
       chain(
-        fin("div[class=doo]"),
+        fine("div[class=doo]"),
         edit(".noo", <p>noo</p>),
         edit(".too", <p>too</p>)
       )(x) must_== target
 
       chain(
-        fin("div[class=doo]"),
+        fine("div[class=doo]"),
         ".noo" -> <p>noo</p>,
         ".too" -> <p>too</p>
       )(x) must_== target
@@ -88,7 +87,7 @@ class XmlHelpersSpec extends Specification {
         <p>{ s.head.attributes("class").head.toString.split(" ")(1) }</p>
 
       chain(
-        fin("div[class=doo]"),
+        fine("div[class=doo]"),
         ".noo" -> pWrap _,
         ".too" -> pWrap _
       )(x) must_== target
