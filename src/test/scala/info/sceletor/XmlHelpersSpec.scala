@@ -1,4 +1,4 @@
-package org.koeninger
+package info.sceletor
 
 import scala.xml._
 

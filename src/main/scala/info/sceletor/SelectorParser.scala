@@ -1,4 +1,4 @@
-package org.koeninger
+package info.sceletor
 
 import scala.util.parsing.combinator._
 import scala.xml._
