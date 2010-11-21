@@ -1,6 +1,6 @@
-package org.koeninger
+package info.sceletor
 
-import org.koeninger.SelectorParser._
+import info.sceletor.SelectorParser._
 import scala.xml._
 import org.specs._
 

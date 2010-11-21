@@ -1,4 +1,4 @@
-package org.koeninger
+package info.sceletor
 
 import scala.util.parsing.combinator._
 import scala.xml._
@@ -55,6 +55,10 @@ object SelectorParser extends RegexParsers {
       case Some(p)~s => (n: Node) => p(n).filter(_.key == s)
       case None~s => (n: Node) => n.attributes.filter(_.key == s)
     }
+
+  /** attribute parsing differs from CSS spec by not requiring quotes around right hand argument,
+   * so that you can write "[foo~=bar]" instead of """[foo~="bar"]"""
+   */
   val attrib: Parser[Node => Boolean] =
     "[" ~> qualifiedAttrib ~ opt(("=" | "~=" | "|=" | "^=" | "$=" | "*=") ~ ident) <~ "]" ^^ {
       case p~None => (n: Node) => p(n) != Null
