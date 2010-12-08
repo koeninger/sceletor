@@ -15,7 +15,7 @@ class PackageSpec extends Specification {
       page.edit(".hello", <p>Hello World</p>) must
         ==/(<html><head></head><body><p>Hello World</p></body></html>)
 
-      page.kid(".hello", "Hello World") must 
+      chain(".hello" -> child("Hello World"))(page) must 
         ==/(<html><head></head><body><h1 class="hello">Hello World</h1></body></html>)
     }
   }

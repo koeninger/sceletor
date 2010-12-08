@@ -20,11 +20,11 @@ package object sceletor {
   implicit def pairToFn2(p:(String, NodeSeq => NodeSeq)): NodeSeq => NodeSeq =
     (xs: NodeSeq) => (new RichNodeSeq(xs)).edit(p._1)(p._2)
 
-  def kid(contents: NodeSeq): NodeSeq => NodeSeq = 
+  def child(contents: NodeSeq): NodeSeq => NodeSeq = 
     (xs: NodeSeq) => xs.flatMap{ x => x match{
       case e @ Elem(p, l, a, s, _) => Elem(p, l, a, s, contents: _*)
       case a => a
     }}
-  def kid(contents: String): NodeSeq => NodeSeq = kid(Text(contents))
+  def child(contents: String): NodeSeq => NodeSeq = child(Text(contents))
 
 }
